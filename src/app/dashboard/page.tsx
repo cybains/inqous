@@ -1,8 +1,5 @@
-"use client";
-
-
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 // Import the client component
 import ResumeDashboard from "@/components/ResumeDashboard";

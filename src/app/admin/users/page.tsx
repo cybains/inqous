@@ -1,13 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function UsersPage() {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.email !== "abainscp@gmail.com") redirect("/");
 
-  const users = await prisma.user.findMany({ orderBy: { createdAt: "desc" } });
+  const users = await prisma.user.findMany({ orderBy: { id: "desc" } });
 
   return (
     <main className="p-8">
@@ -17,7 +17,7 @@ export default async function UsersPage() {
           <tr>
             <th className="text-left p-2">Name</th>
             <th className="text-left p-2">Email</th>
-            <th className="text-left p-2">Created</th>
+            <th className="text-left p-2">ID</th>
           </tr>
         </thead>
         <tbody>
@@ -25,7 +25,7 @@ export default async function UsersPage() {
             <tr key={u.id}>
               <td className="p-2">{u.name}</td>
               <td className="p-2">{u.email}</td>
-              <td className="p-2">{u.createdAt.toISOString()}</td>
+              <td className="p-2">{u.id}</td>
             </tr>
           ))}
         </tbody>

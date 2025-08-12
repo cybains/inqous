@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // Minimal ChatGPT-style layout with a left sidebar and a main conversation area.
@@ -8,7 +10,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 // ---- Utility types ----
 type UploadResult = {
   text: string;
-  meta?: Record<string, any>;
+  meta?: Record<string, unknown>;
   warnings?: string[];
   error?: string;
 };
@@ -90,10 +92,11 @@ export default function ResumeDashboard() {
           copy[next] = { ...copy[next], status: "done", progress: 100, result: data };
           return copy;
         });
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Upload failed";
         setQueue((prev) => {
           const copy = [...prev];
-          copy[next] = { ...copy[next], status: "error", progress: 100, error: err?.message || "Upload failed" };
+          copy[next] = { ...copy[next], status: "error", progress: 100, error: message };
           return copy;
         });
       }
@@ -162,7 +165,7 @@ function ChatLikeArea({
   onPickFiles: () => void;
   onDrop: (ev: React.DragEvent) => void;
   addFiles: (files: File[]) => void;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
 }) {
   const [message, setMessage] = useState("");
 
@@ -195,7 +198,7 @@ function ChatLikeArea({
       >
         <div className="mx-auto max-w-3xl">
           <div className="rounded-2xl border p-6 text-sm text-zinc-600 dark:text-zinc-300">
-            This is your \"amazing space\". Use it like a ChatGPT canvas. Start a chat, or drop/upload resumes to parse them.
+            This is your &quot;amazing space&quot;. Use it like a ChatGPT canvas. Start a chat, or drop/upload resumes to parse them.
           </div>
         </div>
       </div>
