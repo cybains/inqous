@@ -1,10 +1,10 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS
+from flask-cors import CORS
 import os, tempfile
-from resume_extractor import extract_any
+from resume_extractor import extract_any  # local module
 
 app = Flask(__name__)
-CORS(app)
+CORS(app)  # helpful in dev even if you proxy via Next
 
 @app.post("/upload")
 def upload():
@@ -32,7 +32,7 @@ def upload():
             pass
 
 if __name__ == "__main__":
-    # Optional envs (Windows):
+    # Windows: set these before running if needed
     # os.environ["TESSERACT_CMD"] = r"C:\Program Files\Tesseract-OCR\tesseract.exe"
-    # os.environ["POPPLER_PATH"] = r"C:\Program Files\poppler-24.07.0\Library\bin"
+    # os.environ["PATH"] = r"C:\Program Files\gs\gs10.05.1\bin" + os.pathsep + os.environ["PATH"]
     app.run(host="0.0.0.0", port=5000, debug=True)

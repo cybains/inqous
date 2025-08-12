@@ -29,7 +29,7 @@ export default function ResumeDashboard() {
   const [files, setFiles] = useState<File[]>([]);
   const [queue, setQueue] = useState<FileProgress[]>([]);
   const [activeView, setActiveView] = useState<"chat" | "uploads">("chat");
-  const [serverURL, setServerURL] = useState<string>("/api/upload");
+  const [serverURL, setServerURL] = useState<string>();
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   // Drag-n-drop handlers
@@ -277,15 +277,7 @@ function UploadsPanel({ queue }: { queue: FileProgress[] }) {
               {item.result?.text && (
                 <details className="mt-3">
                   <summary className="cursor-pointer text-sm text-zinc-700">Preview extracted text</summary>
-                   <pre
-    className="
-      mt-2 max-h-64 overflow-auto rounded-xl
-      bg-white dark:bg-neutral-900        /* higher-contrast bg */
-      p-3 text-xs whitespace-pre-wrap
-      text-black dark:text-white          /* <-- force text color */
-      not-prose                           /* avoids Typography plugin grays */
-    "
-  >{item.result.text}</pre>
+                  <pre className="mt-2 max-h-64 overflow-auto rounded-xl bg-zinc-50 p-3 text-xs whitespace-pre-wrap">{item.result.text}</pre>
                 </details>
               )}
             </li>
