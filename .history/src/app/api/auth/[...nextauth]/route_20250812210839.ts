@@ -1,15 +1,17 @@
-// src/app/api/auth/[...nextauth]/route.ts
 import NextAuth, { type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+
+console.log("GOOGLE_ID prefix:", process.env.AUTH_GOOGLE_ID?.slice(0, 12));
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID!,        // matches your .env.local
+      // IMPORTANT: match your .env.local
+      clientId: process.env.AUTH_GOOGLE_ID!,
       clientSecret: process.env.AUTH_GOOGLE_SECRET!,
     }),
   ],

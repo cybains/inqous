@@ -9,8 +9,8 @@ export const authOptions: NextAuthOptions = {
   session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
-      clientId: process.env.AUTH_GOOGLE_ID!,        // matches your .env.local
-      clientSecret: process.env.AUTH_GOOGLE_SECRET!,
+      clientId: process.env.GOOGLE_CLIENT_ID!,      // or AUTH_GOOGLE_ID if you used those names
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
 };

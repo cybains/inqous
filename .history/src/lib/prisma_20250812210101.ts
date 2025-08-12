@@ -1,4 +1,4 @@
-// src/lib/prisma.ts
+// src/lib/prisma.ts (singleton)
 import { PrismaClient } from "@prisma/client";
 const g = global as any;
 export const prisma: PrismaClient = g.prisma || new PrismaClient();
