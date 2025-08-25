@@ -1,23 +1,18 @@
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+// src/app/page.tsx
 import GoogleSignInButton from "@/components/GoogleSignInButton";
+import { auth } from "@/lib/auth";
 import Link from "next/link";
 
 export default async function Page() {
-  const session = await getServerSession(authOptions);
+  const session = await auth();
 
   return (
     <main className="mx-auto max-w-xl p-6">
       <h1 className="text-2xl font-semibold mb-4">Welcome</h1>
       {session?.user ? (
         <div className="space-y-3">
-          <p>
-            Signed in as{" "}
-            <strong>{session.user.email ?? session.user.name}</strong>
-          </p>
-          <Link href="/dashboard" className="underline">
-            Go to dashboard →
-          </Link>
+          <p>Signed in as <strong>{session.user.email ?? session.user.name}</strong></p>
+          <Link href="/dashboard" className="underline">Go to dashboard →</Link>
         </div>
       ) : (
         <GoogleSignInButton />

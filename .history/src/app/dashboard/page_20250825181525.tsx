@@ -19,3 +19,8 @@ export default async function DashboardPage() {
     </main>
   );
 }
+# Generate/apply prisma tables (if not yet)
+npx prisma migrate dev --name init
+
+# Start dev
+npm run dev
