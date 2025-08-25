@@ -7,16 +7,15 @@ type Job = {
   id: string;
   title: string;
   company_name: string;
-  category?: string | null;
+  category?: string;
   url: string | null;
   job_type: string | null;
   candidate_required_location: string | null;
   publication_date: string;
   salary: string | null;
-  description: string | null;     // often HTML
+  description: string | null;    // may be HTML from source
   company_logo?: string | null;
   tags?: string[];
-  seniority?: string | null;      // added for "Seniority Level"
 };
 
 type JobsResponse = {
@@ -79,19 +78,6 @@ export default function JobsClient() {
     setExpandedJobId(expandedJobId === id ? null : id);
   };
 
-  async function saveJob(id: string) {
-    await fetch("/api/jobs/saved", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jobId: id }),
-    });
-    // Refresh list – saved items are excluded by the API, so it disappears from the feed
-    const d = await getJobs(currentPage, limit);
-    setJobs(d.jobs);
-    setTotalJobs(d.totalJobs);
-    setExpandedJobId(null);
-  }
-
   const renderPageNumbers = () => {
     const pages = [];
     const start = 1;
@@ -115,6 +101,7 @@ export default function JobsClient() {
           …
         </span>
       );
+
       pages.push(
         <button
           key={totalPages}
@@ -146,81 +133,70 @@ export default function JobsClient() {
                 onClick={() => toggleExpand(job.id)}
                 className="cursor-pointer rounded-xl border border-gray-200 bg-white p-4 transition hover:shadow"
               >
-                {/* Collapsed header */}
                 <div className="mb-2 flex items-center justify-between">
+                  {/* Left: Title + company logo */}
                   <div className="flex items-center gap-3">
-                    {job.company_logo ? (
+                    {job.company_logo && (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={job.company_logo}
                         alt={`${job.company_name} logo`}
                         className="h-10 w-10 rounded object-contain"
                       />
-                    ) : (
-                      <div className="grid h-10 w-10 place-items-center rounded bg-gray-100 text-sm font-semibold text-gray-700">
-                        {job.company_name?.[0]?.toUpperCase() ?? "•"}
-                      </div>
                     )}
                     <h2 className="text-xl font-semibold">{job.title}</h2>
                   </div>
+
+                  {/* Right: publication date */}
                   <span className="text-sm text-gray-500">
                     {new Date(job.publication_date).toLocaleDateString()}
                   </span>
                 </div>
 
-                {/* Collapsed chips line */}
+                {/* Collapsed info */}
                 {!isExpanded && (
-                  <div className="flex flex-wrap gap-3 text-sm text-gray-700">
+                  <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                     <span>{job.candidate_required_location ?? "—"}</span>
                     {job.job_type && <span>{job.job_type}</span>}
                     {job.salary && <span>{job.salary}</span>}
                   </div>
                 )}
 
-                {/* Expanded body */}
+                {/* Expanded */}
                 {isExpanded && (
                   <>
-                    {/* Top meta rows */}
-                    <div className="mt-2 space-y-1 text-gray-800">
-                      <p>
-                        <strong>Company:</strong> {job.company_name}
+                    <p className="mt-2 text-gray-700">
+                      <strong>Company:</strong> {job.company_name}
+                    </p>
+                    {job.category && (
+                      <p className="text-gray-700">
+                        <strong>Category:</strong> {job.category}
                       </p>
-                      {job.category && (
-                        <p>
-                          <strong>Category:</strong> {job.category}
-                        </p>
-                      )}
-                      {Array.isArray(job.tags) && job.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2">
-                          {job.tags.map((tag, idx) => (
-                            <span
-                              key={idx}
-                              className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                      {job.seniority && (
-                        <p>
-                          <strong>Seniority Level:</strong> {job.seniority}
-                        </p>
-                      )}
-                      <p>
-                        <strong>Location:</strong> {job.candidate_required_location ?? "—"}
-                      </p>
-                    </div>
+                    )}
 
-                    {/* Description (HTML-aware) */}
+                    {/* Tags */}
+                    {job.tags && job.tags.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {job.tags.map((tag, idx) => (
+                          <span
+                            key={idx}
+                            className="rounded-full bg-gray-200 px-2 py-1 text-xs text-gray-700"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Description (source HTML is common; render as-is) */}
                     <div
                       className="mt-4 max-h-96 overflow-auto text-gray-700"
                       dangerouslySetInnerHTML={{ __html: job.description ?? "" }}
                       onClick={(e) => e.stopPropagation()}
                     />
 
-                    {/* Actions */}
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    {/* Action */}
+                    <div className="mt-4">
                       {job.url && (
                         <a
                           href={job.url}
@@ -229,18 +205,9 @@ export default function JobsClient() {
                           className="inline-block rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
                           onClick={(e) => e.stopPropagation()}
                         >
-                          See the job posting ↗
+                          See the job posting
                         </a>
                       )}
-                      <button
-                        className="inline-block rounded border px-4 py-2 text-sm hover:bg-gray-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          saveJob(job.id);
-                        }}
-                      >
-                        Save
-                      </button>
                     </div>
                   </>
                 )}

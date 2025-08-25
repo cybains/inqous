@@ -1,7 +1,6 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../lib/auth";
 import getMongoClient from "../../lib/mongo";
-import UploadResumeClient from "./parts/UploadResumeClient";
 
 async function getJobsCount(userId: string) {
   const client = await getMongoClient();
@@ -34,7 +33,7 @@ export default async function DashboardPage() {
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
           <div className="text-sm text-gray-800">Resumes</div>
           <div className="mt-2 text-3xl font-semibold text-gray-900">—</div>
-          <div className="mt-2 text-xs text-gray-800">Upload below</div>
+          <div className="mt-2 text-xs text-gray-800">Coming soon</div>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
@@ -46,14 +45,13 @@ export default async function DashboardPage() {
 
       <section className="rounded-2xl border bg-white p-6 shadow-sm">
         <h2 className="text-lg font-medium text-gray-900">Quick actions</h2>
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-4 flex flex-wrap gap-3">
           <a
             href="/dashboard/jobs"
             className="rounded-lg bg-black px-4 py-2 text-white hover:bg-gray-800"
           >
             View Jobs
           </a>
-          <UploadResumeClient />
         </div>
       </section>
     </div>

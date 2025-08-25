@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import getMongoClient from "../../../lib/mongo";
+import { ObjectId } from "mongodb";
 
 export const runtime = "nodejs";
 
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const page = Math.max(1, num(url.searchParams.get("page"), 1));
-  const limit = Math.min(MAX_LIMIT, num(url.searchParams.get("limit"), 20)); // default 20 to match template
+  const limit = Math.min(MAX_LIMIT, num(url.searchParams.get("limit"), 10));
 
   const q = str(url.searchParams.get("q"));
   const company = str(url.searchParams.get("company"));
@@ -36,6 +37,7 @@ export async function GET(req: Request) {
   const jobsCol = db.collection("jobs");
   const savedCol = db.collection("saved_jobs");
 
+  // Indexes (safe to call repeatedly)
   await Promise.all([
     jobsCol.createIndexes([
       { key: { createdAt: -1, _id: -1 }, name: "created_desc" },
@@ -48,13 +50,13 @@ export async function GET(req: Request) {
     savedCol.createIndex({ userId: 1, jobId: 1 }, { name: "uniq_user_job", unique: true }),
   ]);
 
-  // saved ids for this user (as strings)
+  // Saved ids for this user (stringify for universal comparison)
   const savedRows = await savedCol.find({ userId: session.user.id }).project({ jobId: 1 }).toArray();
   const savedIdStrings = savedRows.map((s: any) =>
     typeof s.jobId === "string" ? s.jobId : (s.jobId?._id ?? s.jobId)?.toString?.() ?? String(s.jobId)
   );
 
-  // shared + personal
+  // Base filters: union of sources (shared + personal)
   const baseMatch: any = {
     $or: [
       { userId: { $exists: false } },
@@ -64,6 +66,7 @@ export async function GET(req: Request) {
     ],
   };
 
+  // Text filters (support both field name variants)
   const and: any[] = [baseMatch];
   if (q) {
     const rx = new RegExp(escRx(q), "i");
@@ -86,7 +89,8 @@ export async function GET(req: Request) {
     and.push({ $or: [{ location: rx }, { candidate_required_location: rx }] });
   }
 
-  const matchStage = { $match: { $and: and } };
+  // Build aggregate so we can exclude saved by stringified _id
+  const matchStage = and.length ? { $match: { $and: and } } : { $match: {} };
 
   const pipeline = [
     matchStage,
@@ -111,47 +115,20 @@ export async function GET(req: Request) {
 
   const total = totalRow?.[0]?.n ?? 0;
 
-  // Normalize + add Remotive-style aliases (+ category + seniority)
-  const jobs = rows.map((r: any) => {
-    const idString = r._id.toString();
-    const created =
-      r.createdAt ??
-      r.publication_date ??
-      (r._id?.getTimestamp?.() ? r._id.getTimestamp().toISOString() : new Date().toISOString());
+  // Normalize fields to a single UI shape
+  const jobs = rows.map((r: any) => ({
+    id: r._id.toString(), // always string for the client
+    title: r.title,
+    company: r.company ?? r.company_name ?? "",
+    location: r.location ?? r.candidate_required_location ?? null,
+    url: r.url ?? null,
+    createdAt: r.createdAt ?? r.publication_date ?? new Date(r._id.getTimestamp?.() ?? Date.now()).toISOString(),
+    jobType: r.jobType ?? r.job_type ?? null,
+    salary: r.salary ?? null,
+    description: r.description ?? null, // can be HTML from external importers
+    companyLogo: r.companyLogo ?? r.company_logo ?? null,
+    tags: Array.isArray(r.tags) ? r.tags : [],
+  }));
 
-    const company = r.company ?? r.company_name ?? "";
-    const location = r.location ?? r.candidate_required_location ?? null;
-    const jobType = r.jobType ?? r.job_type ?? null;
-    const companyLogo = r.companyLogo ?? r.company_logo ?? null;
-    const category = r.category ?? null;
-    const seniority = r.seniority ?? r.seniority_level ?? null;
-
-    const base = {
-      id: idString,
-      title: r.title,
-      company,
-      location,
-      url: r.url ?? null,
-      createdAt: created,
-      jobType,
-      salary: r.salary ?? null,
-      description: r.description ?? null,
-      companyLogo,
-      tags: Array.isArray(r.tags) ? r.tags : [],
-      category,
-      seniority, // new unified key
-    };
-
-    // Remotive aliases for your template
-    return {
-      ...base,
-      company_name: company,
-      candidate_required_location: location,
-      publication_date: created,
-      job_type: jobType,
-      company_logo: companyLogo,
-    };
-  });
-
-  return NextResponse.json({ jobs, page, limit, total, totalJobs: total });
+  return NextResponse.json({ jobs, page, limit, total });
 }

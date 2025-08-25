@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import getMongoClient from "../../../lib/mongo";
+import { ObjectId } from "mongodb";
 
 export const runtime = "nodejs";
 
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
 
   const url = new URL(req.url);
   const page = Math.max(1, num(url.searchParams.get("page"), 1));
-  const limit = Math.min(MAX_LIMIT, num(url.searchParams.get("limit"), 20)); // default 20 to match template
+  const limit = Math.min(MAX_LIMIT, num(url.searchParams.get("limit"), 20)); // default 20 to match your template
 
   const q = str(url.searchParams.get("q"));
   const company = str(url.searchParams.get("company"));
@@ -111,7 +112,7 @@ export async function GET(req: Request) {
 
   const total = totalRow?.[0]?.n ?? 0;
 
-  // Normalize + add Remotive-style aliases (+ category + seniority)
+  // Normalize + also provide Remotive-style aliases your template uses
   const jobs = rows.map((r: any) => {
     const idString = r._id.toString();
     const created =
@@ -123,10 +124,9 @@ export async function GET(req: Request) {
     const location = r.location ?? r.candidate_required_location ?? null;
     const jobType = r.jobType ?? r.job_type ?? null;
     const companyLogo = r.companyLogo ?? r.company_logo ?? null;
-    const category = r.category ?? null;
-    const seniority = r.seniority ?? r.seniority_level ?? null;
 
     const base = {
+      // unified
       id: idString,
       title: r.title,
       company,
@@ -138,11 +138,9 @@ export async function GET(req: Request) {
       description: r.description ?? null,
       companyLogo,
       tags: Array.isArray(r.tags) ? r.tags : [],
-      category,
-      seniority, // new unified key
     };
 
-    // Remotive aliases for your template
+    // add Remotive-style aliases so your existing client can use them
     return {
       ...base,
       company_name: company,
@@ -153,5 +151,6 @@ export async function GET(req: Request) {
     };
   });
 
+  // include totalJobs alias for your template
   return NextResponse.json({ jobs, page, limit, total, totalJobs: total });
 }

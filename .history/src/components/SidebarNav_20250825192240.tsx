@@ -2,15 +2,25 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const items = [
-  { href: "/dashboard", label: "Overview", emoji: "🏠" },
-  { href: "/dashboard/jobs", label: "Jobs", emoji: "💼" },
-  { href: "/dashboard/jobs/saved", label: "Your Jobs", emoji: "⭐" },
-];
+import { useEffect, useState } from "react";
 
 export default function SidebarNav() {
   const pathname = usePathname();
+  const [hasDocs, setHasDocs] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/docs/has")
+      .then((r) => r.json())
+      .then((d) => setHasDocs(!!d?.hasDocs))
+      .catch(() => {});
+  }, []);
+
+  const items = [
+    { href: "/dashboard", label: "Overview", emoji: "🏠" },
+    { href: "/dashboard/jobs", label: "Jobs", emoji: "💼" },
+    ...(hasDocs ? [{ href: "/dashboard/docs", label: "Documents", emoji: "📄" }] : []),
+  ];
+
   return (
     <nav className="space-y-1">
       {items.map((it) => {
