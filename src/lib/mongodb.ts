@@ -1,5 +1,6 @@
 // src/lib/mongodb.ts
-import type { Db, MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
+import type { Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
 if (!uri) {
