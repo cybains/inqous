@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../lib/auth";
-import getMongoClient from "../../lib/mongo";
+import { authOptions } from "@/lib/auth";
+import getMongoClient from "@/lib/mongo";
 
 async function getJobsCount(userId: string) {
   const client = await getMongoClient();
@@ -17,34 +17,39 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-900">
+        <h1 className="text-2xl font-semibold tracking-tight">Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-600">
           Hello, {session?.user?.name ?? session?.user?.email}!
         </p>
       </div>
 
       <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Stat cards */}
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="text-sm text-gray-800">Jobs</div>
-          <div className="mt-2 text-3xl font-semibold text-gray-900">{jobsCount}</div>
-          <div className="mt-2 text-xs text-gray-800">Total jobs in your workspace</div>
+          <div className="text-sm text-gray-500">Jobs</div>
+          <div className="mt-2 text-3xl font-semibold">{jobsCount}</div>
+          <div className="mt-2 text-xs text-gray-500">
+            Total jobs in your workspace
+          </div>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="text-sm text-gray-800">Resumes</div>
-          <div className="mt-2 text-3xl font-semibold text-gray-900">—</div>
-          <div className="mt-2 text-xs text-gray-800">Coming soon</div>
+          <div className="text-sm text-gray-500">Resumes</div>
+          <div className="mt-2 text-3xl font-semibold">—</div>
+          <div className="mt-2 text-xs text-gray-500">Coming soon</div>
         </div>
 
         <div className="rounded-2xl border bg-white p-5 shadow-sm">
-          <div className="text-sm text-gray-800">Last Login</div>
-          <div className="mt-2 text-xl text-gray-900">{new Date().toLocaleString()}</div>
-          <div className="mt-2 text-xs text-gray-800">Local time</div>
+          <div className="text-sm text-gray-500">Last Login</div>
+          <div className="mt-2 text-xl">
+            {new Date().toLocaleString()}
+          </div>
+          <div className="mt-2 text-xs text-gray-500">Local time</div>
         </div>
       </section>
 
       <section className="rounded-2xl border bg-white p-6 shadow-sm">
-        <h2 className="text-lg font-medium text-gray-900">Quick actions</h2>
+        <h2 className="text-lg font-medium">Quick actions</h2>
         <div className="mt-4 flex flex-wrap gap-3">
           <a
             href="/dashboard/jobs"
@@ -52,6 +57,7 @@ export default async function DashboardPage() {
           >
             View Jobs
           </a>
+          {/* Add more quick actions later */}
         </div>
       </section>
     </div>
