@@ -1,10 +1,10 @@
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { prisma } from "@/lib/prisma";
+import clientPromise from "@/lib/mongodb";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: MongoDBAdapter(clientPromise, { databaseName: "user" }),
   session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
