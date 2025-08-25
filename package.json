@@ -9,7 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@auth/prisma-adapter": "^2.10.0",
+    "@auth/mongodb-adapter": "^2.10.0",
     "@prisma/client": "^6.14.0",
     "next": "15.4.6",
     "next-auth": "^4.24.7",
