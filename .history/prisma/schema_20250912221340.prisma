@@ -1,3 +1,5 @@
+// schema.prisma
+
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -21,6 +23,8 @@ model User {
   image         String?
   accounts      Account[]
   sessions      Session[]
+
+  // NEW — default everyone to INDIVIDUAL; you can promote to EMPLOYER/ADMIN later
   role          Role      @default(INDIVIDUAL)
 }
 

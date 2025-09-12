@@ -1,6 +1,6 @@
 // app/(dashboard)/dashboard/page.tsx
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { authOptions } from "../lib/auth";
 import getMongoClient from "@/lib/mongo";
 import ResumeUploadDialog from "@/components/compass/ResumeUploadDialog";
 

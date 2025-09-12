@@ -8,13 +8,7 @@ import { Role } from "@prisma/client";
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   session: { strategy: "jwt" },
-  providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
-  ],
-
+  providers: [ GoogleProvider({ clientId: process.env.GOOGLE_CLIENT_ID!, clientSecret: process.env.GOOGLE_CLIENT_SECRET! }) ],
   callbacks: {
     async jwt({ token, user }) {
       if (user?.id) token.uid = user.id;
@@ -35,10 +29,9 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-
   events: {
     async signIn({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
     async linkAccount({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
     async updateUser({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
   },
-}; // <-- close the object and statement
+};

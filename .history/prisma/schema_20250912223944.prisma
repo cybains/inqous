@@ -1,3 +1,4 @@
+// ---------- datasource & generator ----------
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
@@ -7,20 +8,26 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ---------- roles ----------
 enum Role {
   INDIVIDUAL
   EMPLOYER
   ADMIN
 }
 
+// ---------- models ----------
 model User {
   id            String    @id @default(cuid())
   name          String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+
+  // NextAuth relations
   accounts      Account[]
   sessions      Session[]
+
+  // NEW: default everyone to individual
   role          Role      @default(INDIVIDUAL)
 }
 

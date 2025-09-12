@@ -1,3 +1,4 @@
+// lib/auth.ts
 import type { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
@@ -14,13 +15,14 @@ export const authOptions: NextAuthOptions = {
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     }),
   ],
-
   callbacks: {
     async jwt({ token, user }) {
       if (user?.id) token.uid = user.id;
+
+      // ensure role on token
       if (!token.role && token.uid) {
         const dbUser = await prisma.user.findUnique({
-          where: { id: token.uid as string },
+          where: { id: token.uid },
           select: { role: true },
         });
         token.role = dbUser?.role ?? Role.INDIVIDUAL;
@@ -35,10 +37,18 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
   },
-
   events: {
-    async signIn({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
+    async signIn({ user }) {
+      if (user?.id) {
+        // defensive: ensure user row exists and has a role (schema default will do)
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {}, // no-op; keep defaulted role
+        }).catch(() => {});
+        await syncUserToMongo(user.id).catch(console.error);
+      }
+    },
     async linkAccount({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
     async updateUser({ user }) { if (user?.id) await syncUserToMongo(user.id).catch(console.error); },
   },
-}; // <-- close the object and statement
+};
