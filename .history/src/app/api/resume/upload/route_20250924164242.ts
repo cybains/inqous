@@ -29,8 +29,7 @@ export async function POST(req: NextRequest) {
 
   const client = await getMongoClient();
   const db = client.db(process.env.MONGODB_JOBS_DB || "jobsdb");
-  await db.collection("documents").insertOne({
-    _id: id,
+  await db.collection("documents").insertOne({_id: id,
     userId,
     type: "resume",
     fullName,
