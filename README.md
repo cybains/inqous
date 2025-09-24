@@ -31,6 +31,14 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project now uses the built-in Next.js API route for resume parsing, so it can be deployed to Vercel without running a separate Python backend. The `/api/upload` endpoint handles PDF, DOCX and TXT files directly inside a Node.js serverless function.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Before deploying make sure to configure the following environment variables in Vercel:
+
+| Variable | Description |
+| --- | --- |
+| `DATABASE_URL` | Prisma connection string (e.g. a hosted PostgreSQL or MongoDB URI). |
+| `MONGODB_URI`, `MONGODB_DB` | Required if you keep storing originals in MongoDB GridFS. |
+| `NEXTAUTH_SECRET`, `NEXTAUTH_URL` | Required for NextAuth. |
+
+Deploy using the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme). Refer to the [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

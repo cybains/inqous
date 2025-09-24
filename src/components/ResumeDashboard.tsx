@@ -3,8 +3,8 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 
 // Minimal ChatGPT-style layout with a left sidebar and a main conversation area.
-// Includes a file uploader tailored for resumes that hits a backend endpoint
-// (defaults to http://localhost:5000/upload). Uses Tailwind CSS.
+// Includes a file uploader tailored for resumes that hits the built-in Next.js API route
+// (POST /api/upload). Uses Tailwind CSS.
 // Drop this into a Next.js/React app and make sure Tailwind is configured.
 
 // ---- Utility types ----
@@ -40,7 +40,7 @@ export default function ResumeDashboard() {
   }, []);
 
   const addFiles = (newFiles: File[]) => {
-    const allowed = [".pdf", ".docx", ".odt", ".txt", ".rtf", ".png", ".jpg", ".jpeg"];
+    const allowed = [".pdf", ".docx", ".txt"];
     const filtered = newFiles.filter((f) =>
       allowed.some((ext) => f.name.toLowerCase().endsWith(ext))
     );
@@ -131,13 +131,13 @@ export default function ResumeDashboard() {
         </button>
 
         <div className="mt-auto space-y-2">
-          <label className="text-xs text-zinc-500">Backend upload URL</label>
+          <label className="text-xs text-zinc-500">Upload API route (override if needed)</label>
           <input
             className="w-full rounded-xl border px-3 py-2 text-sm"
             value={serverURL}
             onChange={(e) => setServerURL(e.target.value)}
           />
-          <p className="text-[11px] text-zinc-500">Default expects a Flask endpoint at <code>/upload</code>.</p>
+          <p className="text-[11px] text-zinc-500">Uploads are processed by the built-in <code>/api/upload</code> route on Vercel.</p>
         </div>
       </aside>
 
@@ -198,7 +198,8 @@ function ChatLikeArea({
       >
         <div className="mx-auto max-w-3xl">
           <div className="rounded-2xl border p-6 text-sm text-zinc-600 dark:text-zinc-300">
-            This is your &quot;amazing space&quot;. Use it like a ChatGPT canvas. Start a chat, or drop/upload resumes to parse them.
+            This is your &quot;amazing space&quot;. Use it like a ChatGPT canvas. Start a chat, or drop/upload resumes (PDF, DOCX or
+            TXT) to parse them directly in the cloud.
           </div>
         </div>
       </div>
@@ -219,7 +220,7 @@ function ChatLikeArea({
               className="hidden"
               multiple
               onChange={(e) => e.target.files && addFiles(Array.from(e.target.files))}
-              accept=".pdf,.docx,.odt,.txt,.rtf,.png,.jpg,.jpeg"
+              accept=".pdf,.docx,.txt"
             />
 
             <textarea
