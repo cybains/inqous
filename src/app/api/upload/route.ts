@@ -4,11 +4,9 @@ import { authOptions } from "../../../lib/auth";
 import getMongoClient from "../../../lib/mongo";
 import { GridFSBucket } from "mongodb";
 import { Readable } from "stream";
+import { extractResume } from "../../../lib/resume-extractor";
 
 export const runtime = "nodejs";
-
-// Optional upstream Flask extractor
-const UPSTREAM_URL = process.env.UPSTREAM_UPLOAD_URL || "http://localhost:5000/upload";
 
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
@@ -23,24 +21,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file" }, { status: 400 });
     }
 
-    // 1) Try extractor (non-fatal if it fails)
-    let extracted: any = null;
-    try {
-      const upstreamForm = new FormData();
-      upstreamForm.append("file", file, file.name);
-      const upstreamRes = await fetch(UPSTREAM_URL, { method: "POST", body: upstreamForm });
-      if (upstreamRes.ok) {
-        extracted = await upstreamRes.json();
-      } else {
-        const detail = await upstreamRes.text().catch(() => "");
-        extracted = { warnings: [`Extractor error: ${upstreamRes.status}`, detail] };
-      }
-    } catch (err: any) {
-      extracted = { warnings: ["Extractor unreachable"], detail: err?.message ?? String(err) };
-    }
+    const buffer = Buffer.from(await file.arrayBuffer());
+
+    // 1) Extract the textual content locally (no external runtime required)
+    const extracted = await extractResume({
+      buffer,
+      filename: file.name,
+    });
 
     // 2) Store original file in Mongo (GridFS) + metadata in "documents"
-    const buffer = Buffer.from(await file.arrayBuffer());
 
     const client = await getMongoClient();
     const db = client.db(process.env.MONGODB_DB || "app");
@@ -65,9 +54,9 @@ export async function POST(req: Request) {
       contentType: (file as any).type || null,
       size: buffer.length,
       fileId: gridFsId,
-      extractedText: extracted?.text ?? extracted?.extracted_text ?? null,
-      warnings: extracted?.warnings ?? [],
-      meta: extracted?.metadata ?? {},
+      extractedText: extracted.text,
+      warnings: extracted.warnings,
+      meta: extracted.meta,
       createdAt: new Date().toISOString(),
     };
 
@@ -78,8 +67,9 @@ export async function POST(req: Request) {
       documentId: ins.insertedId.toString(),
       fileId: gridFsId?.toString?.() ?? null,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Upload error:", err);
-    return NextResponse.json({ error: "Upload failed", detail: err?.message ?? String(err) }, { status: 500 });
+    const detail = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({ error: "Upload failed", detail }, { status: 500 });
   }
 }

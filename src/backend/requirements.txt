@@ -1,9 +1,0 @@
-flask
-flask-cors
-pdfplumber
-pdf2image
-pytesseract
-pillow
-opencv-python
-python-docx
-odfpy
