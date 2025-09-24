@@ -13,6 +13,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link
+          rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.14/dist/tailwind.min.css"
+        />
+      </head>
       <body className="antialiased">
         {children}
       </body>

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../../../../lib/auth";
 import getMongoClient from "../../../../../lib/mongo";
@@ -8,13 +9,13 @@ export const runtime = "nodejs";
 
 // DELETE unsave (accepts jobId string or ObjectId string)
 export async function DELETE(
-  _req: Request,
-  { params }: { params: { jobId: string } }
+  _req: NextRequest,
+  { params }: { params: Promise<{ jobId: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { jobId } = params;
+  const { jobId } = await params;
   const client = await getMongoClient();
   const dbName = process.env.MONGODB_JOBS_DB || process.env.MONGODB_DB_NAME || "jobsdb";
   const db = client.db(dbName);
