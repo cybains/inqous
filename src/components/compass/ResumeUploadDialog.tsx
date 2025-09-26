@@ -27,7 +27,7 @@ export default function ResumeUploadDialog() {
       const res = await fetch("/api/resume/upload", { method: "POST", body: form });
       if (!res.ok) throw new Error(await res.text());
       setStep("parsing"); setTimeout(()=>setStep("enriching"), 600); setTimeout(()=>setStep("done"), 1400);
-    } catch (e) { setStep("error"); }
+    } catch { setStep("error"); }
   }
 
   return (

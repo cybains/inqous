@@ -7,6 +7,14 @@ import TopMainNav from "@/components/TopMainNav";
 import SlideSubmenu from "@/components/SlideSubmenu";
 import SignOutButton from "@/components/SignOutButton";
 
+type SectionKey =
+  | "cv"
+  | "opportunities"
+  | "growth"
+  | "mobility"
+  | "path"
+  | "settings";
+
 export default function HeaderShell({
   userImage,
   userLabel,
@@ -15,11 +23,9 @@ export default function HeaderShell({
   userLabel: string;
 }) {
   const [open, setOpen] = useState(false);
-  const [section, setSection] = useState<
-    "cv" | "opportunities" | "growth" | "mobility" | "path" | "settings" | null
-  >(null);
+  const [section, setSection] = useState<SectionKey | null>(null);
 
-  const handleOpen = useCallback((key: any) => {
+  const handleOpen = useCallback((key: SectionKey) => {
     setSection(key);
     setOpen(true);
   }, []);

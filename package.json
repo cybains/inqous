@@ -28,5 +28,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6"
+  },
+  "optionalDependencies": {
+    "lightningcss-linux-x64-gnu": "1.30.1"
   }
 }
