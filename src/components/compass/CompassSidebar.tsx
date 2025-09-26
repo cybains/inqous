@@ -2,10 +2,22 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import type { LucideIcon } from "lucide-react";
 import { ChevronDown, ChevronRight, FileUp, FileText, BadgeCheck, History, Lock, Search, Stars, Bookmark, Send, Calendar, Building2, Target, Route, Flag, Banknote, Map, Globe2, Settings, Bell, ShieldQuestion, HelpCircle, Clock3 } from "lucide-react";
 
-function Section({ title, icon: Icon, children }: any) {
+type SectionProps = {
+  title: string;
+  icon: LucideIcon;
+  children: ReactNode;
+};
+
+type ItemProps = {
+  href: string;
+  children: ReactNode;
+};
+
+function Section({ title, icon: Icon, children }: SectionProps) {
   const [open, setOpen] = useState(true);
   return (
     <div className="rounded-xl border bg-white">
@@ -18,7 +30,7 @@ function Section({ title, icon: Icon, children }: any) {
     </div>
   );
 }
-function Item({ href, children }: any) {
+function Item({ href, children }: ItemProps) {
   const pathname = usePathname();
   const active = pathname === href;
   return (
