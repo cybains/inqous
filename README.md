@@ -14,6 +14,15 @@ pnpm dev
 bun dev
 ```
 
+> [!NOTE]
+> When installing dependencies make sure optional packages are included so the Tailwind/PostCSS pipeline can load the Lightning CSS native binary:
+>
+> ```bash
+> npm install --include=optional
+> ```
+>
+> If optional dependencies are skipped you may see `Cannot find module '../lightningcss.linux-x64-gnu.node'` during `npm run build`.
+
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
