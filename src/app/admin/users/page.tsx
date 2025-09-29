@@ -9,6 +9,8 @@ export default async function UsersPage() {
 
   const users = await prisma.user.findMany({ orderBy: { id: "desc" } });
 
+  type AdminUser = typeof users[number];
+
   return (
     <main className="p-8">
       <h1 className="text-xl font-semibold mb-4">Users</h1>
@@ -21,7 +23,7 @@ export default async function UsersPage() {
           </tr>
         </thead>
         <tbody>
-          {users.map((u) => (
+          {users.map((u: AdminUser) => (
             <tr key={u.id}>
               <td className="p-2">{u.name}</td>
               <td className="p-2">{u.email}</td>
@@ -33,3 +35,5 @@ export default async function UsersPage() {
     </main>
   );
 }
+
+

@@ -28,5 +28,6 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.4.6"
-  }
+  },
+  "packageManager": "npm@10.9.2"
 }
