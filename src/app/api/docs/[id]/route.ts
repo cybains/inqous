@@ -8,12 +8,12 @@ export const runtime = "nodejs";
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const id = params.id;
+  const { id } = await context.params;
   if (!ObjectId.isValid(id)) return NextResponse.json({ error: "Invalid id" }, { status: 400 });
 
   const client = await getMongoClient();

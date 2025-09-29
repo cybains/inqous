@@ -149,9 +149,7 @@ export default function JobsClient() {
                 {/* Collapsed header */}
                 <div className="mb-2 flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    {job.company_logo ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                    {job.company_logo ? (                      <img
                         src={job.company_logo}
                         alt={`${job.company_name} logo`}
                         className="h-10 w-10 rounded object-contain"
@@ -273,3 +271,4 @@ export default function JobsClient() {
     </main>
   );
 }
+

@@ -6,6 +6,7 @@ import getMongoClient from "@/lib/mongo";
 import { writeFile } from "fs/promises";
 import path from "path";
 import { randomUUID } from "crypto";
+import { ObjectId } from "mongodb";
 
 export const runtime = "nodejs";
 
@@ -21,16 +22,17 @@ export async function POST(req: NextRequest) {
   if (!file || !fullName) return NextResponse.json({ error: "Missing file or name" }, { status: 400 });
 
   const bytes = Buffer.from(await file.arrayBuffer());
-  const id = randomUUID();
+  const docId = new ObjectId();
+  const fileKey = randomUUID();
   const ext = path.extname(file.name) || ".bin";
-  const filename = `${id}${ext}`;
+  const filename = `${fileKey}${ext}`;
   const outPath = path.join("/tmp", filename);
   await writeFile(outPath, bytes);
 
   const client = await getMongoClient();
   const db = client.db(process.env.MONGODB_JOBS_DB || "jobsdb");
   await db.collection("documents").insertOne({
-    _id: id,
+    _id: docId,
     userId,
     type: "resume",
     fullName,
@@ -47,5 +49,5 @@ export async function POST(req: NextRequest) {
   });
 
   // TODO: enqueue parse/enrich worker here
-  return NextResponse.json({ documentId: id });
+  return NextResponse.json({ documentId: docId.toHexString() });
 }

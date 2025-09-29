@@ -50,9 +50,7 @@ export default function SavedJobsClient() {
       {jobs.map((job) => (
         <li key={job.id} className="rounded-xl border bg-white p-4 hover:shadow">
           <div className="mb-2 flex items-start justify-between gap-3">
-            <div className="flex items-start gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              {job.companyLogo ? (
+            <div className="flex items-start gap-3">              {job.companyLogo ? (
                 <img src={job.companyLogo} alt={`${job.company} logo`} className="h-10 w-10 rounded object-contain" />
               ) : (
                 <div className="grid h-10 w-10 place-items-center rounded bg-gray-100 text-sm font-semibold text-gray-700">
@@ -106,3 +104,4 @@ export default function SavedJobsClient() {
     </ul>
   );
 }
+
